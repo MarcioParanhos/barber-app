@@ -1,0 +1,43 @@
+## Docker Compose configuration
+# Nota: a chave `version` é obsoleta em Docker Compose V2, o Docker Desktop
+# emite apenas um aviso. Mantemos um formato simples compatível.
+services:
+  # Serviço de banco de dados PostgreSQL usado pela aplicação durante o desenvolvimento
+  db:
+    image: postgres:15
+    restart: unless-stopped
+    environment:
+      # Usuário e senha do Postgres (apenas para desenvolvimento/local)
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: barber
+    volumes:
+      # Persistência dos dados do banco em um volume nomeado
+      - db-data:/var/lib/postgresql/data
+    # Mapeia a porta do container 5432 para a porta 5433 do host, evitando
+    # conflito caso o host já tenha um Postgres rodando na 5432.
+    ports:
+      - "5433:5432"
+
+  # Serviço web que constrói a imagem do Next.js definida pelo Dockerfile
+  web:
+    build: .
+    depends_on:
+      - db
+    # Carrega variáveis de ambiente a partir do arquivo .env.docker dentro do projeto
+    env_file:
+      - .env.docker
+    environment:
+      # URL de conexão interna entre containers (aponta para o serviço `db`)
+      - DATABASE_URL=postgres://postgres:postgres@db:5432/barber
+    # Expõe a porta 3000 do container para a 3000 do host
+    ports:
+      - "3000:3000"
+    # Monta o diretório do projeto no container para desenvolvimento local.
+    # Em produção isso geralmente é removido para usar a imagem construída.
+    volumes:
+      - ./:/app
+
+volumes:
+  # Volume nomeado para persistir os dados do Postgres
+  db-data:

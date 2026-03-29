@@ -1,0 +1,55 @@
+Tutorial: Configurar Docker + Postgres + Prisma para este projeto
+
+1) Arquivos criados/alterados
+- `Dockerfile` : imagem para construir e rodar a aplicação Next.js.
+- `docker-compose.yml` : define serviços `db` (Postgres) e `web` (app).
+- `.env.docker` : variáveis de ambiente usadas dentro do Compose (DATABASE_URL).
+- `.env` : variáveis de ambiente para rodar comandos Prisma no host.
+- `.dockerignore` : evita copiar arquivos desnecessários para a imagem.
+- `prisma/schema.prisma` e `prisma.config.ts` : schema Prisma e config (DB URL via env).
+
+2) Comandos principais (rápido)
+- Subir e construir os containers:
+  docker compose up -d --build
+
+- Esperar o Postgres ficar pronto (opcional):
+  docker compose exec db sh -c "until pg_isready -U postgres; do sleep 1; done; echo postgres ready"
+
+- Aplicar o schema ao banco (sincronizar sem criar migrações):
+  npx prisma db push --schema=prisma/schema.prisma
+
+- Gerar o Prisma Client (se necessário):
+  npx prisma generate
+
+3) Criar migrações (opcional)
+- Se você prefere usar migrações versionadas em vez de `db push`:
+  npx prisma migrate dev --name init
+
+4) Observações importantes
+- Dentro do Docker Compose a `DATABASE_URL` aponta para `db:5432` (serviço `db`).
+- No host (para rodar `npx prisma` localmente), a URL aponta para `localhost:5433`.
+- O `Dockerfile` instala devDependencies temporariamente para permitir
+  `prisma generate` e o build do Next.js durante a construção da imagem,
+  e então remove as devDependencies para reduzir o tamanho final.
+- Em desenvolvimento você pode manter o volume `./:/app` montado para hot-reload;
+  em produção remova esse volume para executar apenas a imagem construída.
+
+5) Como parar e remover containers e volumes
+ - Parar:
+   docker compose down
+ - Parar e remover volumes (perde dados do banco):
+   docker compose down -v
+
+6) Verificar logs
+ - Logs do web:
+   docker compose logs -f web
+ - Logs do db:
+   docker compose logs -f db
+
+7) Dicas de estudo
+- Leia os comentários dentro dos arquivos (`Dockerfile`, `docker-compose.yml`,
+  `prisma/schema.prisma`, `prisma.config.ts`) para entender cada configuração.
+- Experimente alternar entre `npx prisma db push` e `npx prisma migrate dev` para
+  ver a diferença entre sincronizar schema e criar migrações.
+
+FIM

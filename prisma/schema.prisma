@@ -1,0 +1,15 @@
+
+// Gera o Prisma Client usado pela aplicação
+generator client {
+  provider = "prisma-client"
+  // Local de saída do cliente gerado (relativo à raiz do projeto)
+  output   = "../app/generated/prisma"
+}
+
+// Definição da fonte de dados (PostgreSQL).
+// Importante: a URL de conexão foi movida para `prisma.config.ts` (Prisma v7+),
+// portanto não especificamos `url` aqui. O arquivo `prisma.config.ts` lê a
+// variável de ambiente `DATABASE_URL` e a fornece ao CLI e ao runtime.
+datasource db {
+  provider = "postgresql"
+}

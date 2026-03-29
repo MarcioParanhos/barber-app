@@ -1,0 +1,12 @@
+# Arquivos e pastas que NÃO devem ser copiadas para a imagem Docker
+# Evita enviar dependências locais, builds e arquivos de configuração sensíveis
+node_modules
+.next
+build
+dist
+# Não copiar arquivos de ambiente locais (use .env.docker para Docker)
+.env
+.env.local
+.env.*.local
+.vscode
+.DS_Store
