@@ -1,4 +1,3 @@
-
 // Gera o Prisma Client usado pela aplicação
 generator client {
   provider = "prisma-client"
@@ -12,4 +11,56 @@ generator client {
 // variável de ambiente `DATABASE_URL` e a fornece ao CLI e ao runtime.
 datasource db {
   provider = "postgresql"
+}
+
+model User {
+  id        String    @id @default(uuid())
+  name      String
+  email     String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  // Relacionamento com Booking
+  bookings  Booking[]
+}
+
+model Barbershop {
+  id          String              @id @default(uuid())
+  name        String
+  address     String
+  phones      String[]
+  description String?
+  imageUrl    String?
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+  // Relacionamento com BarbershopService
+  services    BarbershopService[]
+}
+
+model BarbershopService {
+  id           String   @id @default(uuid())
+  barbershopId String
+  name         String
+  price        Decimal  @db.Decimal()
+  description  String?
+  imageUrl     String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relacionamento com Barbershop
+  barbershop Barbershop @relation(fields: [barbershopId], references: [id])
+  // Relacionamento com Booking
+  bookings   Booking[]
+}
+
+model Booking {
+  id        String   @id @default(uuid())
+  userId    String
+  serviceId String
+  date      DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relacionamento com User e BarbershopService
+  user    User              @relation(fields: [userId], references: [id])
+  service BarbershopService @relation(fields: [serviceId], references: [id])
 }
