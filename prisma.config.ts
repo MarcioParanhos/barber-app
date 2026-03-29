@@ -11,6 +11,7 @@ export default defineConfig({
   // Pasta onde as migrações serão criadas/aplicadas
   migrations: {
     path: "prisma/migrations",
+    seed: "tsx prisma/seed.ts",
   },
   // Datasource: a URL de conexão é lida da variável de ambiente
   // `DATABASE_URL` (por exemplo, definida em .env ou .env.docker)
